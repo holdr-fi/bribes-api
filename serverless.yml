@@ -1,0 +1,20 @@
+# ROOT PROPERTIES
+
+# service name
+service: solace-swap-bribes
+frameworkVersion: '3'	
+useDotenv: true
+
+provider:
+  name: aws
+  region: us-west-2
+  stackName: solace-swap-bribes
+  runtime: nodejs14.x
+
+functions:
+  parseBribeDeposits:
+    handler: src/parseBribeDeposits.parseBribeDeposits
+
+plugins:
+  - serverless-esbuild
+  - serverless-dotenv-plugin

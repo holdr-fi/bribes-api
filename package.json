@@ -1,0 +1,29 @@
+{
+  "name": "solace-swap-bribes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ./src --ext .ts",
+    "lint-fix": "eslint ./src --ext .ts --fix"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.34",
+    "@typescript-eslint/eslint-plugin": "^5.34.0",
+    "@typescript-eslint/parser": "^5.34.0",
+    "esbuild": "^0.14.25",
+    "eslint": "^8.22.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.7.1",
+    "serverless-dotenv-plugin": "^4.0.2",
+    "serverless-esbuild": "^1.25.0"
+  },
+  "keywords": [],
+  "author": "kyzooghost",
+  "license": "ISC",
+  "dependencies": {
+    "ethers": "^5.7.1"
+  }
+}
