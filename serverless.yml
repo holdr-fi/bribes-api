@@ -10,10 +10,26 @@ provider:
   region: us-west-2
   stackName: solace-swap-bribes
   runtime: nodejs14.x
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+        - s3:ListBucket
+        - s3:ListBucketVersions
+      Resource:
+        - '*'
 
 functions:
   parseBribeDeposits:
-    handler: src/parseBribeDeposits.parseBribeDeposits
+    handler: src/handlers.parseBribeDepositsHandler
+
+resources:
+  Resources:
+    Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${env:BUCKET_NAME}
 
 plugins:
   - serverless-esbuild
