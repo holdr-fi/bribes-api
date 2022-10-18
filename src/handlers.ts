@@ -1,4 +1,4 @@
-import { parseBribeDeposits, createMerkleTree } from './functions';
+import { parseBribeDeposits, createMerkleTree, getGaugeToProposalMap } from './functions';
 
 export const parseBribeDepositsHandler = async function parseBribeDepositsHandler(event) {
   try {
@@ -29,5 +29,21 @@ export const createMerkleTreeHandler = async function createMerkleTreeHandler(ev
   } catch (e) {
     console.error(e);
     return { statusCode: 400, body: 'createMerkleTreeHandler error' };
+  }
+};
+
+export const getGaugeToProposalMapHandler = async function getGaugeToProposalMapHandler(event) {
+  try {
+    console.time('getGaugeToProposal');
+    await getGaugeToProposalMap();
+    console.timeEnd('getGaugeToProposal');
+    return {
+      statusCode: 200,
+      body: 'getGaugeToProposalHandler success',
+      input: event,
+    };
+  } catch (e) {
+    console.error(e);
+    return { statusCode: 400, body: 'getGaugeToProposalHandler error' };
   }
 };

@@ -23,6 +23,10 @@ provider:
 functions:
   parseBribeDeposits:
     handler: src/handlers.parseBribeDepositsHandler
+  createMerkleTree:
+    handler: src/handlers.createMerkleTreeHandler
+  getGaugeToProposalMap:
+    handler: src/handlers.getGaugeToProposalMapHandler
 
 resources:
   Resources:
