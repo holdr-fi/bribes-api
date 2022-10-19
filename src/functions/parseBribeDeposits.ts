@@ -52,6 +52,7 @@ export const parseBribeDeposits = async function parseBribeDeposits(): Promise<v
     // TODO: Filter out bribeIds if previously processed
     bribeIds: Array.from(bribeIdToAmounts.keys()),
     rewardIds: Array.from(rewardIdSet),
+    proposalIds: Array.from(proposalToBribeIds.keys()),
     proposalToBribeIds: mapToObj(proposalToBribeIds),
     bribeIdToToken: mapToObj(bribeIdToToken),
     bribeIdToAmounts: mapToObj(bribeIdToAmounts),

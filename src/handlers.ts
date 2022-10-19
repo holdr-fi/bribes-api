@@ -1,4 +1,5 @@
-import { parseBribeDeposits, createMerkleTree, getGaugeToProposalMap } from './functions';
+import { parseBribeDeposits, createMerkleTree, getGaugeToProposalMap, createEmptyS3Objects } from './functions';
+import { s3keys } from './constants';
 
 export const parseBribeDepositsHandler = async function parseBribeDepositsHandler(event) {
   try {
@@ -45,5 +46,21 @@ export const getGaugeToProposalMapHandler = async function getGaugeToProposalMap
   } catch (e) {
     console.error(e);
     return { statusCode: 400, body: 'getGaugeToProposalHandler error' };
+  }
+};
+
+export const createEmptyS3ObjectsHandler = async function createEmptyS3ObjectsHandler(event) {
+  try {
+    console.time('createEmptyS3Objects');
+    await createEmptyS3Objects(s3keys);
+    console.timeEnd('createEmptyS3Objects');
+    return {
+      statusCode: 200,
+      body: 'createEmptyS3ObjectsHandler success',
+      input: event,
+    };
+  } catch (e) {
+    console.error(e);
+    return { statusCode: 400, body: 'createEmptyS3ObjectsHandler error' };
   }
 };

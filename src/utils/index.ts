@@ -3,4 +3,7 @@ export * from './getEpochStartTimestamp';
 export * from './getTimestampForBlock';
 export * from './getBlockCountForWeek';
 export * from './mapToObj';
+export * from './sortEventsByOrder';
+export * from './getNestedMapSize';
+export * from './generateMerkleLeaf';
 export * from './types';

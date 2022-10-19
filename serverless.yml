@@ -1,6 +1,3 @@
-# ROOT PROPERTIES
-
-# service name
 service: solace-swap-bribes
 frameworkVersion: '3'	
 useDotenv: true
@@ -27,6 +24,8 @@ functions:
     handler: src/handlers.createMerkleTreeHandler
   getGaugeToProposalMap:
     handler: src/handlers.getGaugeToProposalMapHandler
+  createEmptyS3Objects:
+    handler: src/handlers.createEmptyS3ObjectsHandler
 
 resources:
   Resources:
