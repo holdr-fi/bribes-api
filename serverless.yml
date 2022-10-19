@@ -13,9 +13,18 @@ provider:
         - s3:PutObject
         - s3:GetObject
         - s3:ListBucket
-        - s3:ListBucketVersions
       Resource:
-        - '*'
+        - 'arn:aws:s3:::${env:BUCKET_NAME}/*'
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: 
+        - 'arn:aws:s3:::${env:TABLE_NAME}/*'
 
 functions:
   parseBribeDeposits:
@@ -28,6 +37,13 @@ functions:
     handler: src/handlers.createEmptyS3ObjectsHandler
   getUpdateRewardsMetadataParameters:
     handler: src/handlers.getUpdateRewardsMetadataParametersHandler
+  getClaimParameters:
+    handler: src/handlers.getClaimParametersHandler
+    events:
+      - http:
+          path: claims
+          method: get
+          cors: true
 
 resources:
   Resources:
@@ -35,6 +51,24 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${env:BUCKET_NAME}
+
+    UsersDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: ${env:TABLE_NAME}
+        AttributeDefinitions:
+          - AttributeName: voter
+            AttributeType: S
+          - AttributeName: bribeId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: voter
+            KeyType: HASH
+          - AttributeName: bribeId
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
 
 plugins:
   - serverless-esbuild

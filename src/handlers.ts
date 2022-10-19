@@ -4,6 +4,7 @@ import {
   getGaugeToProposalMap,
   createEmptyS3Objects,
   getUpdateRewardsMetadataParameters,
+  getClaimParameters,
 } from './functions';
 import { s3keys } from './constants';
 
@@ -14,9 +15,7 @@ export const parseBribeDepositsHandler = async function parseBribeDepositsHandle
     console.timeEnd('parseBribeDeposits');
     return {
       statusCode: 200,
-      body: '',
-      message: 'parseBribeDeposits success, saved to ParseBribeDepositResults object in S3',
-      input: event,
+      body: 'parseBribeDeposits success, saved to ParseBribeDepositResults object in S3',
     };
   } catch (e) {
     console.error(e);
@@ -31,9 +30,7 @@ export const createMerkleTreeHandler = async function createMerkleTreeHandler(ev
     console.timeEnd('createMerkleTree');
     return {
       statusCode: 200,
-      body: '',
-      message: 'createMerkleTreeHandler success',
-      input: event,
+      body: 'createMerkleTreeHandler success',
     };
   } catch (e) {
     console.error(e);
@@ -49,7 +46,6 @@ export const getGaugeToProposalMapHandler = async function getGaugeToProposalMap
     return {
       statusCode: 200,
       body: 'getGaugeToProposalHandler success',
-      input: event,
     };
   } catch (e) {
     console.error(e);
@@ -64,9 +60,7 @@ export const createEmptyS3ObjectsHandler = async function createEmptyS3ObjectsHa
     console.timeEnd('createEmptyS3Objects');
     return {
       statusCode: 200,
-      body: '',
       message: 'createEmptyS3ObjectsHandler success',
-      input: event,
     };
   } catch (e) {
     console.error(e);
@@ -84,11 +78,31 @@ export const getUpdateRewardsMetadataParametersHandler = async function getUpdat
     return {
       statusCode: 200,
       body: JSON.stringify(updateRewardsMetadataParameters),
-      message: 'getUpdateRewardsMetadataParametersHandler success',
-      input: event,
     };
   } catch (e) {
     console.error(e);
     return { statusCode: 400, body: 'getUpdateRewardsMetadataParametersHandler error' };
+  }
+};
+
+export const getClaimParametersHandler = async function getClaimParametersHandler(event) {
+  // How to add event with address here?
+  const address: string = event?.queryStringParameters?.address || '';
+  console.log(event);
+  console.log(`address: ${address}`);
+  try {
+    console.time('getClaimParameters');
+    const claimParameters = await getClaimParameters(address);
+    console.timeEnd('getClaimParameters');
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(claimParameters),
+    };
+  } catch (e) {
+    console.error(e);
+    return { statusCode: 400, body: 'getClaimParametersHandler error' };
   }
 };

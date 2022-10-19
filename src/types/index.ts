@@ -4,3 +4,10 @@ export type Distribution = {
   merkleRoot: string;
   proof: string;
 };
+
+export type Claim = {
+  identifier: string;
+  account: string;
+  amount: string;
+  merkleProof: string[];
+};

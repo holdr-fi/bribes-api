@@ -7,7 +7,11 @@ if (typeof process.env.CHAIN_ID === 'undefined') {
 if (typeof process.env.BUCKET_NAME === 'undefined') {
   throw new Error('Invalid BUCKET_NAME in .env');
 }
+if (typeof process.env.TABLE_NAME === 'undefined') {
+  throw new Error('Invalid TABLE_NAME in .env');
+}
 
 export const MAINNET_URL = process.env.MAINNET_URL;
 export const CHAIN_ID = process.env.CHAIN_ID;
 export const BUCKET_NAME = process.env.BUCKET_NAME;
+export const TABLE_NAME = process.env.TABLE_NAME;

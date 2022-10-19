@@ -9,6 +9,12 @@ Currently the codebase will work for Ethereum mainnet transaction volumes, howev
 serverless deploy
 ```
 
+# Viewed deployed resources
+
+```bash
+serverless info
+```
+
 # Operation Steps
 
 1. Create empty S3 objects (avoid error when attempt to retrieve in later steps)
@@ -23,3 +29,7 @@ serverless invoke local --function createEmptyS3Objects
 serverless invoke local --function getGaugeToProposalMap
 serverless invoke local --function parseBribeDeposits
 ```
+
+# TODO
+Create function get rewardIds for BribeVault.transferBribes()
+Create system to query waiting claims
