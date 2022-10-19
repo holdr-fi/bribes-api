@@ -26,6 +26,8 @@ functions:
     handler: src/handlers.getGaugeToProposalMapHandler
   createEmptyS3Objects:
     handler: src/handlers.createEmptyS3ObjectsHandler
+  getUpdateRewardsMetadataParameters:
+    handler: src/handlers.getUpdateRewardsMetadataParametersHandler
 
 resources:
   Resources:

@@ -1,4 +1,10 @@
-import { parseBribeDeposits, createMerkleTree, getGaugeToProposalMap, createEmptyS3Objects } from './functions';
+import {
+  parseBribeDeposits,
+  createMerkleTree,
+  getGaugeToProposalMap,
+  createEmptyS3Objects,
+  getUpdateRewardsMetadataParameters,
+} from './functions';
 import { s3keys } from './constants';
 
 export const parseBribeDepositsHandler = async function parseBribeDepositsHandler(event) {
@@ -8,7 +14,8 @@ export const parseBribeDepositsHandler = async function parseBribeDepositsHandle
     console.timeEnd('parseBribeDeposits');
     return {
       statusCode: 200,
-      body: 'parseBribeDeposits success, saved to ParseBribeDepositResults object in S3',
+      body: '',
+      message: 'parseBribeDeposits success, saved to ParseBribeDepositResults object in S3',
       input: event,
     };
   } catch (e) {
@@ -24,7 +31,8 @@ export const createMerkleTreeHandler = async function createMerkleTreeHandler(ev
     console.timeEnd('createMerkleTree');
     return {
       statusCode: 200,
-      body: 'createMerkleTreeHandler success',
+      body: '',
+      message: 'createMerkleTreeHandler success',
       input: event,
     };
   } catch (e) {
@@ -56,11 +64,31 @@ export const createEmptyS3ObjectsHandler = async function createEmptyS3ObjectsHa
     console.timeEnd('createEmptyS3Objects');
     return {
       statusCode: 200,
-      body: 'createEmptyS3ObjectsHandler success',
+      body: '',
+      message: 'createEmptyS3ObjectsHandler success',
       input: event,
     };
   } catch (e) {
     console.error(e);
     return { statusCode: 400, body: 'createEmptyS3ObjectsHandler error' };
+  }
+};
+
+export const getUpdateRewardsMetadataParametersHandler = async function getUpdateRewardsMetadataParametersHandler(
+  event
+) {
+  try {
+    console.time('getUpdateRewardsMetadataParameters');
+    const updateRewardsMetadataParameters = await getUpdateRewardsMetadataParameters();
+    console.timeEnd('getUpdateRewardsMetadataParameters');
+    return {
+      statusCode: 200,
+      body: JSON.stringify(updateRewardsMetadataParameters),
+      message: 'getUpdateRewardsMetadataParametersHandler success',
+      input: event,
+    };
+  } catch (e) {
+    console.error(e);
+    return { statusCode: 400, body: 'getUpdateRewardsMetadataParametersHandler error' };
   }
 };
