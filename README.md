@@ -17,17 +17,16 @@ serverless info
 
 # Operation Steps
 
-1. Create empty S3 objects (avoid error when attempt to retrieve in later steps)
+1. 
 
-```bash
-serverless invoke local --function createEmptyS3Objects
+```
+npm run deploy
 ```
 
-2. Create S3 caches from parsing Solidity events
+2. Create Merkle Trees for storage in S3
 
 ```bash
-serverless invoke local --function getGaugeToProposalMap
-serverless invoke local --function parseBribeDeposits
+serverless invoke local --function createMerkleTree
 ```
 
 # TODO

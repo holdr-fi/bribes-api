@@ -11,3 +11,20 @@ export type Claim = {
   amount: string;
   merkleProof: string[];
 };
+
+export type MerkleTreeCollection = {
+  [bribeId: string]: { bribeId: string; token: string; merkleRoot: string; merkleTree: MerkleTree };
+};
+
+export type MerkleLeafPutRequest = {
+  Item: {
+    voter: { [keyType: DynamoDBKeyType]: string };
+    bribeId: string;
+    token: string;
+    amount: string;
+  };
+};
+
+export type DynamoDBKeyType = {
+  type: 'S' | 'N';
+};

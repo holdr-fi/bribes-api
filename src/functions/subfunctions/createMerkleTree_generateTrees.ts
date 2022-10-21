@@ -1,11 +1,9 @@
 import { BigNumber } from 'ethers';
 import { ZERO, ONE } from '../../constants';
+import { MerkleTreeCollection, MerkleLeafPutRequest } from '../../types';
 import { generateMerkleLeaf } from '../../utils';
 import keccak256 from 'keccak256';
 import MerkleTree from 'merkletreejs';
-import AWS from 'aws-sdk';
-import { BUCKET_NAME } from '../../constants';
-const s3 = new AWS.S3({ region: 'us-west-2' });
 
 export const createMerkleTree_generateTrees = async function createMerkleTree_generateTrees(
   bribeIds: string[],
@@ -13,11 +11,16 @@ export const createMerkleTree_generateTrees = async function createMerkleTree_ge
   bribeIdToInfoMap: Map<string, { token: string; amount: BigNumber }>,
   processedBribeIds: string[],
   gaugesToVoteProportion: Map<string, Map<string, BigNumber>>
-): Promise<void> {
+): Promise<{
+  newProcessedBribeIds: string[];
+  bribeIdMerkleTrees: MerkleTreeCollection;
+  merkleLeafPutRequests: MerkleLeafPutRequest[];
+}> {
+  // This line of code is for reading purposes only, we would like to pretend that we are creating a new variable that is a deep clone of 'newProcessedBribeIds', however it is actually a copy by reference so the original 'processedBribeIds' parameter is altered anyway.
+  const newProcessedBribeIds = processedBribeIds;
   // Create leaves for each bribeId merkle tree
-  const bribeIdMerkleTrees: {
-    [bribeId: string]: { bribeId: string; token: string; merkleRoot: string; merkleTree: MerkleTree };
-  } = {};
+  const bribeIdMerkleTrees: MerkleTreeCollection = {};
+  const merkleLeafPutRequests: MerkleLeafPutRequest[] = [];
 
   bribeIds
     .filter((bribeId) => !processedBribeIds.includes(bribeId))
@@ -37,7 +40,17 @@ export const createMerkleTree_generateTrees = async function createMerkleTree_ge
 
       gaugesToVoteProportion.forEach((voterToVoteProportionInnerMap, gauge) => {
         voterToVoteProportionInnerMap.forEach((voteProportion, voter) => {
-          merkleLeaves.push(generateMerkleLeaf(voter, voteProportion.mul(totalBribeAmount).div(ONE)));
+          const individualBribeAmount = voteProportion.mul(totalBribeAmount).div(ONE);
+          // Here need input correlating DynamoDB data entries.
+          merkleLeafPutRequests.push({
+            Item: {
+              voter: voter,
+              bribeId: bribeId,
+              token: token,
+              amount: individualBribeAmount.toString(),
+            },
+          });
+          merkleLeaves.push(generateMerkleLeaf(voter, individualBribeAmount));
         });
       });
 
@@ -45,30 +58,12 @@ export const createMerkleTree_generateTrees = async function createMerkleTree_ge
       const merkleRoot = merkleTree.getHexRoot();
       bribeIdMerkleTrees[bribeId] = { bribeId: bribeId, token: token, merkleRoot: merkleRoot, merkleTree: merkleTree };
       // We are mutating a parameter here, however we can't avoid using an impure function when we're querying and writing to some external state.
-      processedBribeIds.push(bribeId);
+      newProcessedBribeIds.push(bribeId);
     });
 
-  const saveMerkleTreeToS3Promises = Object.keys(bribeIdMerkleTrees).map((bribeId) => {
-    return s3
-      .putObject({
-        Bucket: BUCKET_NAME,
-        Key: bribeId,
-        Body: JSON.stringify(bribeIdMerkleTrees[bribeId]),
-      })
-      .promise();
-  });
-
-  // Also update processedBribeIds array
-  saveMerkleTreeToS3Promises.push(
-    s3
-      .putObject({
-        Bucket: BUCKET_NAME,
-        Key: 'ProcessedBribeIds',
-        Body: JSON.stringify(Array.from(processedBribeIds)),
-      })
-      .promise()
-  );
-
-  await Promise.all(saveMerkleTreeToS3Promises);
-  return;
+  return {
+    newProcessedBribeIds: newProcessedBribeIds,
+    bribeIdMerkleTrees: bribeIdMerkleTrees,
+    merkleLeafPutRequests: merkleLeafPutRequests,
+  };
 };

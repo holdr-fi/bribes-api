@@ -21,7 +21,10 @@ provider:
         - dynamodb:Scan
         - dynamodb:GetItem
         - dynamodb:PutItem
+        - dynamodb:BatchGetItem
+        - dynamodb:BatchWriteItem
         - dynamodb:UpdateItem
+        - dynamodb:UpdateTable
         - dynamodb:DeleteItem
       Resource: 
         - 'arn:aws:s3:::${env:TABLE_NAME}/*'
@@ -59,17 +62,45 @@ resources:
         AttributeDefinitions:
           - AttributeName: voter
             AttributeType: S
+          - AttributeName: token
+            AttributeType: S
           - AttributeName: bribeId
             AttributeType: S
         KeySchema:
           - AttributeName: voter
             KeyType: HASH
-          - AttributeName: bribeId
+          - AttributeName: token
             KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: BribeIdIndex
+            KeySchema:
+              - AttributeName: bribeId
+                KeyType: HASH
+              - AttributeName: voter
+                KeyType: RANGE
+            Projection:
+              ProjectionType: 'KEYS_ONLY'
+            ProvisionedThroughput:
+              ReadCapacityUnits: 5
+              WriteCapacityUnits: 5
+          # Would like to add the following global secondary index (GSI), but apparently AWS doesn't let us change an existing DynamoDB table to add more than 1 global secondary index, we can only create a new table with more than 1 global secondary index. So this secondary GSI is a nice-to-have, not a must have for the bribe table.
+          # - IndexName: TokenIndex
+          #   KeySchema:
+          #     - AttributeName: token
+          #       KeyType: HASH
+          #     - AttributeName: voter
+          #       KeyType: RANGE
+          #   Projection:
+          #     ProjectionType: 'KEYS_ONLY'
+          #   ProvisionedThroughput:
+          #     ReadCapacityUnits: 5
+          #     WriteCapacityUnits: 5
         ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        BillingMode: PROVISIONED
 
 plugins:
   - serverless-esbuild
   - serverless-dotenv-plugin
+  - serverless-dynamodb-autoscaling

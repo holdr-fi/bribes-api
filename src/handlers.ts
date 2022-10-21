@@ -1,12 +1,12 @@
 import {
   parseBribeDeposits,
   createMerkleTree,
+  deleteS3Objects,
   getGaugeToProposalMap,
   createEmptyS3Objects,
   getUpdateRewardsMetadataParameters,
   getClaimParameters,
 } from './functions';
-import { s3keys } from './constants';
 
 export const parseBribeDepositsHandler = async function parseBribeDepositsHandler(event) {
   try {
@@ -56,7 +56,7 @@ export const getGaugeToProposalMapHandler = async function getGaugeToProposalMap
 export const createEmptyS3ObjectsHandler = async function createEmptyS3ObjectsHandler(event) {
   try {
     console.time('createEmptyS3Objects');
-    await createEmptyS3Objects(s3keys);
+    await createEmptyS3Objects();
     console.timeEnd('createEmptyS3Objects');
     return {
       statusCode: 200,
@@ -65,6 +65,21 @@ export const createEmptyS3ObjectsHandler = async function createEmptyS3ObjectsHa
   } catch (e) {
     console.error(e);
     return { statusCode: 400, body: 'createEmptyS3ObjectsHandler error' };
+  }
+};
+
+export const deleteS3ObjectsHandler = async function deleteS3ObjectsHandler(event) {
+  try {
+    console.time('deleteS3Objects');
+    await deleteS3Objects();
+    console.timeEnd('deleteS3Objects');
+    return {
+      statusCode: 200,
+      message: 'deleteS3ObjectsHandler success',
+    };
+  } catch (e) {
+    console.error(e);
+    return { statusCode: 400, body: 'deleteS3ObjectsHandler error' };
   }
 };
 

@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ./src --ext .ts",
-    "lint-fix": "eslint ./src --ext .ts --fix"
+    "lint-fix": "eslint ./src --ext .ts --fix",
+    "redeploy": "serverless invoke local --function deleteS3Objects && serverless remove && npm run deploy",
+    "deploy": "serverless deploy --verbose && serverless invoke local --function createEmptyS3Objects && serverless invoke local --function getGaugeToProposalMap && serverless invoke local --function parseBribeDeposits"
   },
   "devDependencies": {
     "@types/node": "^17.0.34",
@@ -27,6 +29,7 @@
     "aws-sdk": "^2.1234.0",
     "ethers": "^5.7.1",
     "keccak256": "^1.0.6",
-    "merkletreejs": "^0.2.32"
+    "merkletreejs": "^0.2.32",
+    "serverless-dynamodb-autoscaling": "^0.6.2"
   }
 }
