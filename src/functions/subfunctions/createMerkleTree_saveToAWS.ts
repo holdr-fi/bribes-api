@@ -66,7 +66,6 @@ export const createMerkleTree_saveToAWS = async function createMerkleTree_saveTo
 
     try {
       const resp = await dynamodb.batchWriteItem(batchWriteRequest).promise();
-      console.log(resp);
       currentBatch = (resp?.UnprocessedItems?.TABLE_NAME as MerkleLeafPutRequest[]) || ([] as MerkleLeafPutRequest[]);
     } catch (e) {
       console.error(e);

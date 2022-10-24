@@ -6,29 +6,35 @@ Currently the codebase will work for Ethereum mainnet transaction volumes, howev
 # Deploy
 
 ```bash
-serverless deploy
+npm run deploy
 ```
 
-# Viewed deployed resources
+# Redeploy 
+
+```bash
+npm run redeploy
+```
+
+# Viewing deployed resources (useful for getting API URL)
 
 ```bash
 serverless info
 ```
 
-# Operation Steps
-
-1. 
-
-```
-npm run deploy
-```
-
-2. Create Merkle Trees for storage in S3
+# Generate Merkle trees from blockchain state
 
 ```bash
-serverless invoke local --function createMerkleTree
+npm run merkle
 ```
 
-# TODO
-Create function get rewardIds for BribeVault.transferBribes()
-Create system to query waiting claims
+# Obtain claims data for 'address'
+
+```bash
+curl <API_URL>/claims/?address=0x71C7656EC7ab88b098defB751B7401B5f6d8976F
+```
+
+# Obtain updateRewardsMetadata parameters
+
+```bash
+curl <API_URL>/rewardsmetadata
+```

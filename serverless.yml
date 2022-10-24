@@ -31,9 +31,7 @@ provider:
         - s3:GetObject
         - s3:ListBucket
       Resource:
-        Fn::GetAtt:
-          - Bucket
-          - Arn
+        arn:aws:s3:::${env:BUCKET_NAME}/*
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -58,10 +56,13 @@ functions:
     handler: src/handlers.getGaugeToProposalMapHandler
   createEmptyS3Objects:
     handler: src/handlers.createEmptyS3ObjectsHandler
-  deleteS3Objects:
-    handler: src/handlers.deleteS3ObjectsHandler
   getUpdateRewardsMetadataParameters:
     handler: src/handlers.getUpdateRewardsMetadataParametersHandler
+    events:
+      - http:
+          path: rewardsmetadata
+          method: get
+          cors: true
   getClaims:
     handler: src/handlers.getClaimsHandler
     events:

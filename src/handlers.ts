@@ -71,21 +71,6 @@ export const createEmptyS3ObjectsHandler = async function createEmptyS3ObjectsHa
   }
 };
 
-export const deleteS3ObjectsHandler = async function deleteS3ObjectsHandler(event) {
-  try {
-    console.time('deleteS3Objects');
-    await deleteS3Objects();
-    console.timeEnd('deleteS3Objects');
-    return {
-      statusCode: 200,
-      message: 'deleteS3ObjectsHandler success',
-    };
-  } catch (e) {
-    console.error(e);
-    return { statusCode: 400, body: 'deleteS3ObjectsHandler error' };
-  }
-};
-
 export const getUpdateRewardsMetadataParametersHandler = async function getUpdateRewardsMetadataParametersHandler(
   event
 ) {
@@ -109,7 +94,6 @@ export const getClaimsHandler = async function getClaimsHandler(event) {
   if (!isAddress(address)) {
     return { statusCode: 400, body: `getClaimsHandler error, ${address} is not an Ethereum address` };
   }
-  console.log(`Address: ${address}`);
   try {
     console.time('getClaims');
     const claims = await getClaims(address);
