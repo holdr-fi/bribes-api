@@ -6,4 +6,5 @@ export * from './mapToObj';
 export * from './sortEventsByOrder';
 export * from './getNestedMapSize';
 export * from './generateMerkleLeaf';
+export * from './sleep';
 export * from './types';

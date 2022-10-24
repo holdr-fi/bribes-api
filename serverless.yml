@@ -2,6 +2,23 @@ service: solace-swap-bribes
 frameworkVersion: '3'	
 useDotenv: true
 
+plugins:
+  - serverless-esbuild
+  - serverless-dotenv-plugin
+  - serverless-dynamodb-autoscaling
+
+custom:
+  capacities:
+    - table: UsersDynamoDBTable
+      read:
+        minimum: 5
+        maximum: 1000
+        usage: 0.75
+      write:
+        minimum: 5
+        maximum: 200
+        usage: 0.75
+
 provider:
   name: aws
   region: us-west-2
@@ -38,6 +55,8 @@ functions:
     handler: src/handlers.getGaugeToProposalMapHandler
   createEmptyS3Objects:
     handler: src/handlers.createEmptyS3ObjectsHandler
+  deleteS3Objects:
+    handler: src/handlers.deleteS3ObjectsHandler
   getUpdateRewardsMetadataParameters:
     handler: src/handlers.getUpdateRewardsMetadataParametersHandler
   getClaimParameters:
@@ -62,45 +81,13 @@ resources:
         AttributeDefinitions:
           - AttributeName: voter
             AttributeType: S
-          - AttributeName: token
-            AttributeType: S
           - AttributeName: bribeId
             AttributeType: S
         KeySchema:
           - AttributeName: voter
             KeyType: HASH
-          - AttributeName: token
+          - AttributeName: bribeId
             KeyType: RANGE
-        GlobalSecondaryIndexes:
-          - IndexName: BribeIdIndex
-            KeySchema:
-              - AttributeName: bribeId
-                KeyType: HASH
-              - AttributeName: voter
-                KeyType: RANGE
-            Projection:
-              ProjectionType: 'KEYS_ONLY'
-            ProvisionedThroughput:
-              ReadCapacityUnits: 5
-              WriteCapacityUnits: 5
-          # Would like to add the following global secondary index (GSI), but apparently AWS doesn't let us change an existing DynamoDB table to add more than 1 global secondary index, we can only create a new table with more than 1 global secondary index. So this secondary GSI is a nice-to-have, not a must have for the bribe table.
-          # - IndexName: TokenIndex
-          #   KeySchema:
-          #     - AttributeName: token
-          #       KeyType: HASH
-          #     - AttributeName: voter
-          #       KeyType: RANGE
-          #   Projection:
-          #     ProjectionType: 'KEYS_ONLY'
-          #   ProvisionedThroughput:
-          #     ReadCapacityUnits: 5
-          #     WriteCapacityUnits: 5
         ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
-        BillingMode: PROVISIONED
-
-plugins:
-  - serverless-esbuild
-  - serverless-dotenv-plugin
-  - serverless-dynamodb-autoscaling

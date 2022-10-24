@@ -8,7 +8,8 @@
     "lint": "eslint ./src --ext .ts",
     "lint-fix": "eslint ./src --ext .ts --fix",
     "redeploy": "serverless invoke local --function deleteS3Objects && serverless remove && npm run deploy",
-    "deploy": "serverless deploy --verbose && serverless invoke local --function createEmptyS3Objects && serverless invoke local --function getGaugeToProposalMap && serverless invoke local --function parseBribeDeposits"
+    "deploy": "serverless deploy --verbose && serverless invoke local --function createEmptyS3Objects && serverless invoke local --function getGaugeToProposalMap && serverless invoke local --function parseBribeDeposits",
+    "createMerkleTrees": "serverless invoke local --function createMerkleTree"
   },
   "devDependencies": {
     "@types/node": "^17.0.34",

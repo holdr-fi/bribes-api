@@ -1,3 +1,6 @@
+import MerkleTree from 'merkletreejs';
+import { PutRequest } from 'aws-sdk/clients/dynamodb';
+
 export type Distribution = {
   identifier: string;
   token: string;
@@ -17,14 +20,12 @@ export type MerkleTreeCollection = {
 };
 
 export type MerkleLeafPutRequest = {
-  Item: {
-    voter: { [keyType: DynamoDBKeyType]: string };
-    bribeId: string;
-    token: string;
-    amount: string;
+  PutRequest: {
+    Item: {
+      voter: { [keyType: string]: string };
+      bribeId: { [keyType: string]: string };
+      token: { [keyType: string]: string };
+      amount: { [keyType: string]: string };
+    };
   };
-};
-
-export type DynamoDBKeyType = {
-  type: 'S' | 'N';
 };

@@ -23,7 +23,7 @@ export const createMerkleTree_generateTrees = async function createMerkleTree_ge
   const merkleLeafPutRequests: MerkleLeafPutRequest[] = [];
 
   bribeIds
-    .filter((bribeId) => !processedBribeIds.includes(bribeId))
+    // .filter((bribeId) => !processedBribeIds.includes(bribeId))
     .forEach((bribeId) => {
       const totalBribeAmount = bribeIdToInfoMap.get(bribeId)?.amount || ZERO;
       const token = bribeIdToInfoMap.get(bribeId)?.token || '';
@@ -38,20 +38,32 @@ export const createMerkleTree_generateTrees = async function createMerkleTree_ge
 
       const merkleLeaves: Buffer[] = [];
 
-      gaugesToVoteProportion.forEach((voterToVoteProportionInnerMap, gauge) => {
-        voterToVoteProportionInnerMap.forEach((voteProportion, voter) => {
-          const individualBribeAmount = voteProportion.mul(totalBribeAmount).div(ONE);
-          // Here need input correlating DynamoDB data entries.
-          merkleLeafPutRequests.push({
+      const voterToVoteProportionInnerMap = gaugesToVoteProportion.get(gauge) || new Map<string, BigNumber>();
+
+      const voterSet: Set<string> = new Set();
+      voterToVoteProportionInnerMap.forEach((voteProportion, voter) => {
+        // Check for duplicate voters
+        if (voterSet.has(voter)) {
+          throw new Error(
+            `createMerkleTree_generateTrees - duplicate voter ${voter} for bribeId ${bribeId} and gauge ${gauge}`
+          );
+        }
+
+        voterSet.add(voter);
+
+        const individualBribeAmount = voteProportion.mul(totalBribeAmount).div(ONE);
+        // Here need input correlating DynamoDB data entries.
+        merkleLeafPutRequests.push({
+          PutRequest: {
             Item: {
-              voter: voter,
-              bribeId: bribeId,
-              token: token,
-              amount: individualBribeAmount.toString(),
+              voter: { S: voter },
+              bribeId: { S: bribeId },
+              token: { S: token },
+              amount: { S: individualBribeAmount.toString() },
             },
-          });
-          merkleLeaves.push(generateMerkleLeaf(voter, individualBribeAmount));
+          },
         });
+        merkleLeaves.push(generateMerkleLeaf(voter, individualBribeAmount));
       });
 
       const merkleTree = new MerkleTree(merkleLeaves, keccak256, { sortPairs: true });
