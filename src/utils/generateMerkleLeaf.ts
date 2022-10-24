@@ -7,7 +7,7 @@ const { solidityKeccak256 } = utils;
  * @param {string} amount of airdrop tokens to claimee
  * @returns {Buffer} Merkle Tree node
  */
-export const generateMerkleLeaf = function generateMerkleLeaf(address: string, amount: BigNumber): Buffer {
+export const generateMerkleLeaf = function generateMerkleLeaf(address: string, amount: BigNumber | string): Buffer {
   return Buffer.from(
     // Hash in appropriate Merkle format
     solidityKeccak256(['address', 'uint256'], [address, amount.toString()]).slice(2),

@@ -4,4 +4,4 @@ export * from './deleteS3Objects';
 export * from './getGaugeToProposalMap';
 export * from './createEmptyS3Objects';
 export * from './getUpdateRewardsMetadataParameters';
-export * from './getClaimParameters';
+export * from './getClaims';

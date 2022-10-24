@@ -23,7 +23,7 @@ export const createMerkleTree_generateTrees = async function createMerkleTree_ge
   const merkleLeafPutRequests: MerkleLeafPutRequest[] = [];
 
   bribeIds
-    // .filter((bribeId) => !processedBribeIds.includes(bribeId))
+    .filter((bribeId) => !processedBribeIds.includes(bribeId))
     .forEach((bribeId) => {
       const totalBribeAmount = bribeIdToInfoMap.get(bribeId)?.amount || ZERO;
       const token = bribeIdToInfoMap.get(bribeId)?.token || '';

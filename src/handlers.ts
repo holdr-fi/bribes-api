@@ -1,3 +1,6 @@
+import { utils } from 'ethers';
+const { isAddress } = utils;
+
 import {
   parseBribeDeposits,
   createMerkleTree,
@@ -5,7 +8,7 @@ import {
   getGaugeToProposalMap,
   createEmptyS3Objects,
   getUpdateRewardsMetadataParameters,
-  getClaimParameters,
+  getClaims,
 } from './functions';
 
 export const parseBribeDepositsHandler = async function parseBribeDepositsHandler(event) {
@@ -100,24 +103,26 @@ export const getUpdateRewardsMetadataParametersHandler = async function getUpdat
   }
 };
 
-export const getClaimParametersHandler = async function getClaimParametersHandler(event) {
+export const getClaimsHandler = async function getClaimsHandler(event) {
   // How to add event with address here?
   const address: string = event?.queryStringParameters?.address || '';
-  console.log(event);
-  console.log(`address: ${address}`);
+  if (!isAddress(address)) {
+    return { statusCode: 400, body: `getClaimsHandler error, ${address} is not an Ethereum address` };
+  }
+  console.log(`Address: ${address}`);
   try {
-    console.time('getClaimParameters');
-    const claimParameters = await getClaimParameters(address);
-    console.timeEnd('getClaimParameters');
+    console.time('getClaims');
+    const claims = await getClaims(address);
+    console.timeEnd('getClaims');
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(claimParameters),
+      body: JSON.stringify(claims),
     };
   } catch (e) {
     console.error(e);
-    return { statusCode: 400, body: 'getClaimParametersHandler error' };
+    return { statusCode: 400, body: 'getClaimsHandler error' };
   }
 };

@@ -31,20 +31,23 @@ provider:
         - s3:GetObject
         - s3:ListBucket
       Resource:
-        - 'arn:aws:s3:::${env:BUCKET_NAME}/*'
+        Fn::GetAtt:
+          - Bucket
+          - Arn
     - Effect: Allow
       Action:
         - dynamodb:Query
         - dynamodb:Scan
         - dynamodb:GetItem
         - dynamodb:PutItem
-        - dynamodb:BatchGetItem
         - dynamodb:BatchWriteItem
         - dynamodb:UpdateItem
         - dynamodb:UpdateTable
         - dynamodb:DeleteItem
       Resource: 
-        - 'arn:aws:s3:::${env:TABLE_NAME}/*'
+        Fn::GetAtt:
+          - UsersDynamoDBTable
+          - Arn
 
 functions:
   parseBribeDeposits:
@@ -59,8 +62,8 @@ functions:
     handler: src/handlers.deleteS3ObjectsHandler
   getUpdateRewardsMetadataParameters:
     handler: src/handlers.getUpdateRewardsMetadataParametersHandler
-  getClaimParameters:
-    handler: src/handlers.getClaimParametersHandler
+  getClaims:
+    handler: src/handlers.getClaimsHandler
     events:
       - http:
           path: claims

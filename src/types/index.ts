@@ -1,5 +1,5 @@
+import { BigNumber } from 'ethers';
 import MerkleTree from 'merkletreejs';
-import { PutRequest } from 'aws-sdk/clients/dynamodb';
 
 export type Distribution = {
   identifier: string;
@@ -9,6 +9,12 @@ export type Distribution = {
 };
 
 export type Claim = {
+  token: string;
+  amount: BigNumber | string;
+  claimParams: ClaimParams;
+};
+
+export type ClaimParams = {
   identifier: string;
   account: string;
   amount: string;
@@ -28,4 +34,11 @@ export type MerkleLeafPutRequest = {
       amount: { [keyType: string]: string };
     };
   };
+};
+
+export type MerkleDBQuery = {
+  voter: { [attributeType: string]: string };
+  amount: { [attributeType: string]: string };
+  token: { [attributeType: string]: string };
+  bribeId: { [attributeType: string]: string };
 };
