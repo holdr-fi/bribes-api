@@ -8,6 +8,15 @@ const mainnetContractAddressList: ContractAddressList = {
   GaugeController: '0xC128468b7Ce63eA702C1f104D55A2566b13D3ABD',
 };
 
+const mumbaiContractAddressList: ContractAddressList = {
+  BribeVault: '0xAD6bba392F770f8628f98636B23CA12B05Bd5BB5',
+  RewardDistributor: '0xE0128e57F33F42C69F32FCaf37E323fE4865e00D',
+  BalancerBribe: '0x6E97a32F28C6A0336f7aCdCdC72Eac5e5320D15e',
+  VotingEscrow: '0xC3Ba2291E0A3C87A83eC9A259BaBA3779738A47d',
+  GaugeController: '0xe9fBFdDFfa5152Bbe4eB5e38e4fA1aD8b5c893Dd',
+};
+
 export const contractAddressListCollection: ContractAddressListCollection = {
   [1]: mainnetContractAddressList,
+  [80001]: mumbaiContractAddressList,
 };

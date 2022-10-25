@@ -1,20 +1,20 @@
 import { BigNumber, Contract } from 'ethers';
 import { contracts } from '../network';
-import { getBlockCountForWeek, mapToObj } from '../utils';
+import { mapToObj } from '../utils';
 import { BUCKET_NAME } from '../constants';
 import AWS from 'aws-sdk';
 const s3 = new AWS.S3({ region: 'us-west-2' });
 
-// Gets all bribeId and rewardId from DepositBribe events in last week
+// Gets all bribeId and rewardId from previous DepositBribe events.
 export const parseBribeDeposits = async function parseBribeDeposits(): Promise<void> {
   const balancerBribe: Contract = contracts['BalancerBribe'];
   const eventFilter = balancerBribe.filters.DepositBribe();
-  const numBlocksToSearch = await getBlockCountForWeek();
-  const events = await balancerBribe.queryFilter(eventFilter, -numBlocksToSearch);
+  const events = await balancerBribe.queryFilter(eventFilter);
 
   // Is this a clumsy pattern parsing the events object to get data like this?
   // Could we store events into a single format, and perhaps make SQL queries to get the data we are seeking?
   // const bribeIdSet: Set<string | unknown> = new Set();
+  // Yes we could refactor this to update a DynamoDB table, rather than multiple S3 objects.
   const rewardIdSet: Set<string | unknown> = new Set();
   const proposalToBribeIds: Map<string, Set<string>> = new Map();
   const bribeIdToAmounts: Map<string, BigNumber> = new Map();
@@ -66,17 +66,3 @@ export const parseBribeDeposits = async function parseBribeDeposits(): Promise<v
     })
     .promise();
 };
-
-// let usedBribeIds;
-
-// try {
-//   usedBribeIds = await s3
-//     .getObject({
-//       Bucket: BUCKET_NAME,
-//       Key: 'UsedBribeIDs',
-//     })
-//     .promise();
-// } catch (e) {
-//   usedBribeIds = undefined;
-//   console.error(e);
-// }

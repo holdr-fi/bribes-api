@@ -4,9 +4,9 @@ const { isAddress } = utils;
 import {
   parseBribeDeposits,
   createMerkleTree,
-  deleteS3Objects,
   getGaugeToProposalMap,
   createEmptyS3Objects,
+  getTransferBribesParameters,
   getUpdateRewardsMetadataParameters,
   getClaims,
 } from './functions';
@@ -68,6 +68,21 @@ export const createEmptyS3ObjectsHandler = async function createEmptyS3ObjectsHa
   } catch (e) {
     console.error(e);
     return { statusCode: 400, body: 'createEmptyS3ObjectsHandler error' };
+  }
+};
+
+export const getTransferBribesParametersHandler = async function getTransferBribesParametersHandler(event) {
+  try {
+    console.time('getTransferBribesParameters');
+    const transferBribesParameters = await getTransferBribesParameters();
+    console.timeEnd('getTransferBribesParameters');
+    return {
+      statusCode: 200,
+      body: JSON.stringify(transferBribesParameters),
+    };
+  } catch (e) {
+    console.error(e);
+    return { statusCode: 400, body: 'getTransferBribesParametersHandler error' };
   }
 };
 

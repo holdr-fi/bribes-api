@@ -7,9 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ./src --ext .ts",
     "lint-fix": "eslint ./src --ext .ts --fix",
-    "redeploy": "aws s3 rm s3://$(grep BUCKET_NAME .env | cut -d '=' -f2) --recursive && serverless remove && npm run deploy",
-    "deploy": "serverless deploy --verbose && serverless invoke local --function createEmptyS3Objects && serverless invoke local --function getGaugeToProposalMap && serverless invoke local --function parseBribeDeposits && serverless invoke local --function createMerkleTree",
-    "merkle": "serverless invoke local --function createMerkleTree"
+    "redeploy": "aws s3 rm s3://$(grep BUCKET_NAME .env | cut -d '=' -f2) --recursive && serverless remove --verbose && npm run deploy",
+    "deploy": "serverless deploy --verbose && serverless invoke local --function createEmptyS3Objects",
+    "update": "serverless invoke local --function getGaugeToProposalMap && serverless invoke local --function parseBribeDeposits && serverless invoke local --function createMerkleTree"
   },
   "devDependencies": {
     "@types/node": "^17.0.34",

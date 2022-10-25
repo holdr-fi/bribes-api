@@ -10,10 +10,12 @@ export const getGaugeToProposalMap = async function getGaugeToProposalMap(): Pro
   const balancerBribe: Contract = contracts['BalancerBribe'];
   const eventFilter = balancerBribe.filters.SetProposal();
   const events = await balancerBribe.queryFilter(eventFilter);
-  const promises = events.map((event) => event.getTransaction());
-  const txArray = await Promise.all(promises);
+  const txArray = await Promise.all(events.map((event) => event.getTransaction()));
   const gaugeSet = txArray.reduce((runningGaugeSet, tx) => {
-    const gaugeArray: string[] = balancerBribe.interface.parseTransaction(tx)?.args?.gauges_;
+    // SetProposal proposal event can be triggered by either setGaugeProposals() and setGaugeProposal() functions.
+    const gaugeArray: string[] = balancerBribe.interface.parseTransaction(tx)?.args?.gauges_ || [
+      balancerBribe.interface.parseTransaction(tx)?.args?.gauge,
+    ];
     if (typeof gaugeArray !== 'undefined') {
       gaugeArray.forEach((gauge) => runningGaugeSet.add(gauge));
     }

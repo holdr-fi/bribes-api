@@ -5,7 +5,7 @@ import {
   createMerkleTree_saveToAWS,
 } from './subfunctions';
 
-// Get all proposalIDs from S3 `ParseBribeDepositResults` objects
+// Get all proposalIDs from S3 `ParseBribeDepositResults` objects, and creates Merkle trees for previously unprocessed bribeIds.
 export const createMerkleTree = async function createMerkleTree() {
   const { bribeIds, bribeIdToGaugeMap, bribeIdToInfoMap, processedBribeIds, voteForGaugeEvents } =
     await createMerkleTree_LoadData();

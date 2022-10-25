@@ -56,6 +56,13 @@ functions:
     handler: src/handlers.getGaugeToProposalMapHandler
   createEmptyS3Objects:
     handler: src/handlers.createEmptyS3ObjectsHandler
+  getTransferBribesParameters:
+    handler: src/handlers.getTransferBribesParametersHandler
+    events:
+      - http:
+          path: transferbribes
+          method: get
+          cors: true
   getUpdateRewardsMetadataParameters:
     handler: src/handlers.getUpdateRewardsMetadataParametersHandler
     events:
