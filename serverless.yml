@@ -36,7 +36,17 @@ provider:
       Action:
         - lambda:InvokeFunction
       Resource: 
-        '*'
+        arn:aws:lambda:${aws:region}:${aws:accountId}:function:solace-swap-bribes-dev-parseBribeDeposits
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: 
+        arn:aws:lambda:${aws:region}:${aws:accountId}:function:solace-swap-bribes-dev-getGaugeToProposalMap
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: 
+        arn:aws:lambda:${aws:region}:${aws:accountId}:function:solace-swap-bribes-dev-createMerkleTree
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -67,12 +77,12 @@ functions:
   #     - schedule: rate(24 hours)
   updater:
     handler: src/handlers.updaterHandler
-    events:
-      - eventBridge:
-          eventBus: updaterScheduler
-          pattern:
-            source:
-              - updaterScheduler
+    # events:
+    #   - eventBridge:
+    #       eventBus: updaterScheduler
+    #       pattern:
+    #         source:
+    #           - updaterScheduler
   getTransferBribesParameters:
     handler: src/handlers.getTransferBribesParametersHandler
     events:
