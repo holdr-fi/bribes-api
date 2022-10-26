@@ -6,6 +6,8 @@ import {
   createMerkleTree,
   getGaugeToProposalMap,
   createEmptyS3Objects,
+  // updaterScheduler,
+  updater,
   getTransferBribesParameters,
   getUpdateRewardsMetadataParameters,
   getClaims,
@@ -68,6 +70,36 @@ export const createEmptyS3ObjectsHandler = async function createEmptyS3ObjectsHa
   } catch (e) {
     console.error(e);
     return { statusCode: 400, body: 'createEmptyS3ObjectsHandler error' };
+  }
+};
+
+// export const updaterSchedulerHandler = async function updaterSchedulerHandler(event) {
+//   try {
+//     console.time('updaterScheduler');
+//     await updaterScheduler();
+//     console.timeEnd('updaterScheduler');
+//     return {
+//       statusCode: 200,
+//       message: 'updaterSchedulerHandler success',
+//     };
+//   } catch (e) {
+//     console.error(e);
+//     return { statusCode: 400, body: 'updaterSchedulerHandler error' };
+//   }
+// };
+
+export const updaterHandler = async function updaterHandler(event) {
+  try {
+    console.time('updater');
+    await updater();
+    console.timeEnd('updater');
+    return {
+      statusCode: 200,
+      message: 'updaterHandler success',
+    };
+  } catch (e) {
+    console.error(e);
+    return { statusCode: 400, body: 'updaterHandler error' };
   }
 };
 

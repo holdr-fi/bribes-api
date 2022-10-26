@@ -34,6 +34,11 @@ provider:
         arn:aws:s3:::${env:BUCKET_NAME}/*
     - Effect: Allow
       Action:
+        - lambda:InvokeFunction
+      Resource: 
+        '*'
+    - Effect: Allow
+      Action:
         - dynamodb:Query
         - dynamodb:Scan
         - dynamodb:GetItem
@@ -56,6 +61,18 @@ functions:
     handler: src/handlers.getGaugeToProposalMapHandler
   createEmptyS3Objects:
     handler: src/handlers.createEmptyS3ObjectsHandler
+  # updaterScheduler:
+  #   handler: src/handlers.updaterSchedulerHandler
+  #   events:
+  #     - schedule: rate(24 hours)
+  updater:
+    handler: src/handlers.updaterHandler
+    events:
+      - eventBridge:
+          eventBus: updaterScheduler
+          pattern:
+            source:
+              - updaterScheduler
   getTransferBribesParameters:
     handler: src/handlers.getTransferBribesParametersHandler
     events:

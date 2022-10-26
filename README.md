@@ -21,10 +21,10 @@ npm run redeploy
 serverless info
 ```
 
-# Generate Merkle trees from blockchain state
+# Take snapshot of current blockchain state (generate Merkle trees for bribes)
 
 ```bash
-npm run merkle
+npm run update
 ```
 
 # Obtain claims data for 'address'
@@ -37,4 +37,10 @@ curl <API_URL>/claims/?address=0x71C7656EC7ab88b098defB751B7401B5f6d8976F
 
 ```bash
 curl <API_URL>/rewardsmetadata
+```
+
+# Obtain transferBribes parameters
+
+```bash
+curl <API_URL>/transferbribes
 ```

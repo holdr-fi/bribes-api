@@ -1,4 +1,5 @@
 export * from './getCurrentTime';
+export * from './getCurrentUnixTimestamp';
 export * from './getEpochStartTimestamp';
 export * from './getTimestampForBlock';
 export * from './getBlockCountForWeek';

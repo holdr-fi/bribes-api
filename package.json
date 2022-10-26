@@ -9,7 +9,7 @@
     "lint-fix": "eslint ./src --ext .ts --fix",
     "redeploy": "aws s3 rm s3://$(grep BUCKET_NAME .env | cut -d '=' -f2) --recursive && serverless remove --verbose && npm run deploy",
     "deploy": "serverless deploy --verbose && serverless invoke local --function createEmptyS3Objects",
-    "update": "serverless invoke local --function getGaugeToProposalMap && serverless invoke local --function parseBribeDeposits && serverless invoke local --function createMerkleTree"
+    "update": "serverless invoke local --function updater"
   },
   "devDependencies": {
     "@types/node": "^17.0.34",
