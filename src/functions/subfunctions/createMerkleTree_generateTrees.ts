@@ -5,17 +5,17 @@ import { generateMerkleLeaf } from '../../utils';
 import keccak256 from 'keccak256';
 import MerkleTree from 'merkletreejs';
 
-export const createMerkleTree_generateTrees = async function createMerkleTree_generateTrees(
+export const createMerkleTree_generateTrees = function createMerkleTree_generateTrees(
   bribeIds: string[],
   bribeIdToGaugeMap: Map<string, string>,
   bribeIdToInfoMap: Map<string, { token: string; amount: BigNumber }>,
   processedBribeIds: string[],
   gaugesToVoteProportion: Map<string, Map<string, BigNumber>>
-): Promise<{
+): {
   newProcessedBribeIds: string[];
   bribeIdMerkleTrees: MerkleTreeCollection;
   merkleLeafPutRequests: MerkleLeafPutRequest[];
-}> {
+} {
   // This line of code is for reading purposes only, we would like to pretend that we are creating a new variable that is a deep clone of 'newProcessedBribeIds', however it is actually a copy by reference so the original 'processedBribeIds' parameter is altered anyway.
   const newProcessedBribeIds = processedBribeIds;
   // Create leaves for each bribeId merkle tree

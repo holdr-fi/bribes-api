@@ -1,136 +1,133 @@
 import { Contract } from 'ethers';
 import { contracts } from '../../network';
-import { Event, BigNumber, constants } from 'ethers';
+import { BigNumber, constants } from 'ethers';
 import { sortEventsByOrder } from '../../utils';
 import { ZERO, ONE, TEN_THOUSAND } from '../../constants';
 const { MaxUint256 } = constants;
 
-export const createMerkleTree_parseVoteForGaugeEvents = async function createMerkleTree_parseVoteForGaugeEvents(
-  VoteForGaugeEvents: Event[]
-): Promise<{
-  gaugesToVoteProportion: Map<string, Map<string, BigNumber>>;
-}> {
-  sortEventsByOrder(VoteForGaugeEvents);
-  // UNSURE - We are mutating these two Map structure rather than creating new Map structures. It is probably easier to understand the code if we create new Map structures each time we want to change what the map value represents, rather than mutating the same Map structure multiple times throughout this function.
-  const voterToGauges: Map<string, Map<string, BigNumber>> = new Map();
-  const gaugesToVotes: Map<string, Map<string, BigNumber>> = new Map();
+export const createMerkleTree_parseVoteForGaugeEvents =
+  async function createMerkleTree_parseVoteForGaugeEvents(): Promise<{
+    gaugesToVoteProportion: Map<string, Map<string, BigNumber>>;
+  }> {
+    const gaugeController: Contract = contracts['GaugeController'];
+    const eventFilter = gaugeController.filters.VoteForGauge();
+    // Thankfully there is <5000 events in the following request at ~Oct 2022. If it expands to closer to 10000, we will need to refactor the code to maintain our own cache of `VoteForGauge` events, rather than querying the entire history in each instance.
+    const voteForGaugeEvents = await gaugeController.queryFilter(eventFilter);
+    sortEventsByOrder(voteForGaugeEvents);
 
-  VoteForGaugeEvents.forEach((event) => {
-    const user = event?.args?.user;
-    const gauge_addr = event?.args?.gauge_addr;
-    const weight = event?.args?.weight;
+    // I feel that at some point, it makes more sense to use an in-memory database than use primitive data structures. I'd rather the code be easier to understand with API methods, than wrestle with raw data structures like a pair of nested hashmaps.
+    const voterToGauges: Map<string, Map<string, BigNumber>> = new Map();
+    const gaugesToVoters: Map<string, Map<string, BigNumber>> = new Map();
 
-    // Outer mapping key doesn't exist
-    if (!voterToGauges.has(user)) {
-      voterToGauges.set(user, new Map([[gauge_addr, weight]]));
-      // Inner mapping key doesn't exist || Outer and inner mapping key exists
-    } else {
-      const currentMap = voterToGauges.get(user) || new Map();
-      currentMap.set(gauge_addr, weight);
-    }
+    voteForGaugeEvents.forEach((event) => {
+      const user = event?.args?.user;
+      const gauge_addr = event?.args?.gauge_addr;
+      const weight = event?.args?.weight;
 
-    if (!gaugesToVotes.has(gauge_addr)) {
-      gaugesToVotes.set(gauge_addr, new Map([[user, weight]]));
-    } else {
-      const currentMap = gaugesToVotes.get(gauge_addr) || new Map();
-      currentMap.set(user, weight);
-    }
-  });
+      // Outer mapping key doesn't exist
+      if (!voterToGauges.has(user)) {
+        voterToGauges.set(user, new Map([[gauge_addr, weight]]));
+      } else {
+        voterToGauges.get(user).set(gauge_addr, weight);
+      }
 
-  // Clean gaugesToVotes and voterToGauges of all zero values
-
-  gaugesToVotes.forEach((innerMap) => {
-    innerMap.forEach((gaugeWeight, user) => {
-      if (gaugeWeight.eq(ZERO)) {
-        innerMap.delete(user);
+      if (!gaugesToVoters.has(gauge_addr)) {
+        gaugesToVoters.set(gauge_addr, new Map([[user, weight]]));
+      } else {
+        voterToGauges.get(user).set(gauge_addr, weight);
       }
     });
-  });
 
-  voterToGauges.forEach((innerMap) => {
-    innerMap.forEach((gaugeWeight, gauge) => {
-      if (gaugeWeight.eq(ZERO)) {
-        innerMap.delete(gauge);
+    // Clean voterToGauges and gaugesToVotes of all zero values
+
+    voterToGauges.forEach((innerMap) => {
+      innerMap.forEach((gaugeWeight, gauge) => {
+        if (gaugeWeight.eq(ZERO)) {
+          innerMap.delete(gauge);
+        }
+      });
+    });
+
+    gaugesToVoters.forEach((innerMap) => {
+      innerMap.forEach((gaugeWeight, voter) => {
+        if (gaugeWeight.eq(ZERO)) {
+          innerMap.delete(voter);
+        }
+      });
+    });
+
+    // Validation of voterToGauges mapping - the sum of each voters' votes should not exceed 10000
+    voterToGauges.forEach((gaugeToWeightInnerMap, voter) => {
+      const totalVoteWeight = Array.from(gaugeToWeightInnerMap.values()).reduce(
+        (prevValue, currentValue) => prevValue.add(currentValue),
+        ZERO
+      );
+
+      if (totalVoteWeight.gt(TEN_THOUSAND)) {
+        throw new Error(`totalGaugeWeight > 10000 for ${voter}`);
       }
     });
-  });
 
-  // Validation of voterToGauges mapping - the sum of each voters' votes should not exceed 10000
+    // Get current veBAL balance
+    const votingEscrow: Contract = contracts['VotingEscrow'];
 
-  voterToGauges.forEach((innerMap, voter) => {
-    // const doesn't seem to work when values are passed by reference, only when passed by value. So here Rust would say you were using a mutable reference, whereas JS doesn't care.
-    const totalVoteWeight = ZERO;
-    // Borrowing from Rust syntax where '_' means a variable we don't want to use.
-    innerMap.forEach((gaugeWeight, _) => {
-      totalVoteWeight.add(gaugeWeight);
-    });
-    if (totalVoteWeight.gt(TEN_THOUSAND)) {
-      throw new Error(`totalGaugeWeight > 10000 for ${voter}`);
-    }
-  });
+    const voterVotePowers: BigNumber[] = await Promise.all(
+      Array.from(voterToGauges.keys()).map((voter) => votingEscrow['balanceOf(address)'](voter))
+    );
 
-  // In each mapping, replace voteWeight values with `voteWeight * individualVotePower = allocatedVotePower`, with individualVotePower == VotingEscrow.balanceOf(...)
-  const votingEscrow: Contract = contracts['VotingEscrow'];
-  const promises: Promise<BigNumber>[] = [];
-  voterToGauges.forEach((_, voter) => {
-    promises.push(votingEscrow['balanceOf(address)'](voter));
-  });
-  const voterVotePowers = await Promise.all(promises);
+    // Replace voteWeight values with `individualVotePower * voteWeight / 10000 = allocatedVotePower`, where individualVotePower == VotingEscrow.balanceOf(...), and voteWeight is weight (max of 10000) placed on this vote.
+    Array.from(voterToGauges.keys()).forEach((voter, index) => {
+      const votePower = voterVotePowers[index];
+      const gaugeToWeightInnerMap = voterToGauges.get(voter);
 
-  voterToGauges.forEach((gaugeToWeightInnerMap, voter) => {
-    const votePower = voterVotePowers.shift() || MaxUint256;
-    // Can't coerce undefined to ZERO, because some votePower values are ZERO.
-    // TODO: We are assuming direct mapping of votingEscrow.balanceOf() and bribe reward, is this neccesarily correct? Does veBAL delegation affect our implementation or should we ignore it for simplicity?
-    if (votePower.eq(MaxUint256)) {
-      throw new Error('voterVotePowers.length != voterToGauges.keys().length');
-    }
-    gaugeToWeightInnerMap.forEach((voteWeight, gauge) => {
-      const voterToWeightInnerMap = gaugesToVotes.get(gauge) || new Map();
-      if (voterToWeightInnerMap.size === 0) {
-        throw new Error(`Reverse map entry does not exist for voter: ${voter}, gauge: ${gauge}`);
-      }
-      if (!voterToWeightInnerMap.get(voter).eq(gaugeToWeightInnerMap.get(gauge))) {
-        throw new Error(`Reverse map entry is not equivalent for voter: ${voter}, gauge: ${gauge}`);
-      }
-      gaugeToWeightInnerMap.set(gauge, voteWeight.mul(votePower).div(10000));
-      voterToWeightInnerMap.set(voter, voteWeight.mul(votePower).div(10000));
-    });
-  });
+      gaugeToWeightInnerMap.forEach((voteWeight, gauge) => {
+        const voterToWeightInnerMap = gaugesToVoters.get(gauge);
+        if (voterToWeightInnerMap.size === 0) {
+          throw new Error(`Reverse map entry does not exist for voter: ${voter}, gauge: ${gauge}`);
+        }
+        if (!voterToWeightInnerMap.get(voter).eq(gaugeToWeightInnerMap.get(gauge))) {
+          throw new Error(`Reverse map weight entry is not equivalent for voter: ${voter}, gauge: ${gauge}`);
+        }
 
-  // Clean gaugesToVotes and voterToGauges of all zero values (again, because we are now considering votingEscrow.balanceOf() == 0 cases, whereas before we were just considering voteWeight == 0 cases).
-
-  gaugesToVotes.forEach((innerMap) => {
-    innerMap.forEach((votePower, user) => {
-      if (votePower.eq(ZERO)) {
-        innerMap.delete(user);
-      }
-    });
-  });
-
-  voterToGauges.forEach((innerMap) => {
-    innerMap.forEach((votePower, gauge) => {
-      if (votePower.eq(ZERO)) {
-        innerMap.delete(gauge);
-      }
-    });
-  });
-
-  // In gaugesToVotes, replace `allocatedVotePower` values with `Proportion of allocatedVotePower` to 18 decimal places.
-  gaugesToVotes.forEach((voterToWeightInnerMap, gauge) => {
-    // Find sum of `allocatedVotePower` for voterToWeightInnerMap
-    let sumVotePower = ZERO;
-
-    voterToWeightInnerMap.forEach((votePower, _) => {
-      sumVotePower = sumVotePower.add(votePower);
+        // TODO: We are assuming direct mapping of votingEscrow.balanceOf() and bribe reward, is this neccessarily correct? Does veBAL delegation affect our implementation or should we ignore it for simplicity?
+        gaugeToWeightInnerMap.set(gauge, votePower.mul(voteWeight).div(10000));
+        voterToWeightInnerMap.set(voter, votePower.mul(voteWeight).div(10000));
+      });
     });
 
-    // Replace each `allocatedVotePower` value for `proportion`
-    voterToWeightInnerMap.forEach((votePower, voter) => {
-      voterToWeightInnerMap.set(voter, votePower.mul(ONE).div(sumVotePower));
-    });
-  });
+    // Clean gaugesToVotes and voterToGauges of all zero values (again, because we are now considering votingEscrow.balanceOf() == 0 cases, whereas before we were just considering voteWeight == 0 cases).
 
-  return {
-    gaugesToVoteProportion: gaugesToVotes,
+    gaugesToVoters.forEach((innerMap) => {
+      innerMap.forEach((votePower, user) => {
+        if (votePower.eq(ZERO)) {
+          innerMap.delete(user);
+        }
+      });
+    });
+
+    voterToGauges.forEach((innerMap) => {
+      innerMap.forEach((votePower, gauge) => {
+        if (votePower.eq(ZERO)) {
+          innerMap.delete(gauge);
+        }
+      });
+    });
+
+    // In gaugesToVotes, replace `allocatedVotePower` values with `Proportion of allocatedVotePower` to 18 decimal places.
+    // Iterate through each gauge
+    gaugesToVoters.forEach((voterToVotePowerInnerMap, _) => {
+      const sumVotePower = Array.from(voterToVotePowerInnerMap.values()).reduce(
+        (previousValue, currentValue) => previousValue.add(currentValue),
+        ZERO
+      );
+
+      // Replace each `allocatedVotePower` value for `proportion`
+      voterToVotePowerInnerMap.forEach((votePower, voter) => {
+        voterToVotePowerInnerMap.set(voter, ONE.mul(votePower).div(sumVotePower));
+      });
+    });
+
+    return {
+      gaugesToVoteProportion: gaugesToVoters,
+    };
   };
-};

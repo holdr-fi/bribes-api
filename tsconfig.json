@@ -1,0 +1,19 @@
+// tsconfig.json for ts-mocha
+{
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "es6",
+      "rootDir": ".",
+      "strict": false,
+      "declaration": true,
+      "esModuleInterop": true,
+      "resolveJsonModule": true,
+      "moduleResolution": "node"
+    },
+    "include": ["test/**/*"],
+    "exclude": [
+        "./src/",
+        "./node_modules/",
+        "./dist/"
+      ],
+  }

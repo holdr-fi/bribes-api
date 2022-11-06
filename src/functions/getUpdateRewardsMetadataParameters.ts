@@ -8,7 +8,6 @@ const s3 = new AWS.S3({ region: 'us-west-2' });
 export const getUpdateRewardsMetadataParameters = async function getUpdateRewardsMetadataParameters(): Promise<
   Distribution[]
 > {
-  // Get stale bribeIDs from RewardMetadataUpdated events from RewardDistributor.sol
   const rewardDistributor: Contract = contracts['RewardDistributor'];
   const eventFilter = rewardDistributor.filters.RewardMetadataUpdated();
 
@@ -21,6 +20,8 @@ export const getUpdateRewardsMetadataParameters = async function getUpdateReward
       })
       .promise(),
   ]);
+
+  // Get stale bribeIDs from RewardMetadataUpdated events from RewardDistributor.sol
 
   // Compare with processedBribeIds to get freshBribeIds
   const processedBribeIds: string[] = Array.from(JSON.parse(String(wrappedProcessedBribeIds?.Body)));

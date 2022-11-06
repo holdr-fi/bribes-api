@@ -21,6 +21,16 @@ export type ClaimParams = {
   merkleProof: string[];
 };
 
+export type ParseBribeDepositsData = {
+  timestamp: number;
+  bribeIds: string[];
+  rewardIds: unknown[];
+  proposalIds: string[];
+  proposalToBribeIds: { [address: string]: string[] };
+  bribeIdToToken: { [address: string]: string };
+  bribeIdToAmounts: { [address: string]: BigNumber };
+};
+
 export type MerkleTreeCollection = {
   [bribeId: string]: { bribeId: string; token: string; merkleRoot: string; merkleTree: MerkleTree };
 };

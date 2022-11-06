@@ -5,5 +5,4 @@ export * from './createEmptyS3Objects';
 export * from './getTransferBribesParameters';
 export * from './getUpdateRewardsMetadataParameters';
 export * from './getClaims';
-// export * from './updaterScheduler';
 export * from './updater';

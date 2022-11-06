@@ -1,21 +1,32 @@
 import {
   createMerkleTree_parseVoteForGaugeEvents,
-  createMerkleTree_LoadData,
+  createMerkleTree_parseBribeIds,
   createMerkleTree_generateTrees,
   createMerkleTree_saveToAWS,
+  createMerkleTree_loadFromAWS,
 } from './subfunctions';
 
-// Get all proposalIDs from S3 `ParseBribeDepositResults` objects, and creates Merkle trees for previously unprocessed bribeIds.
 export const createMerkleTree = async function createMerkleTree() {
-  const { bribeIds, bribeIdToGaugeMap, bribeIdToInfoMap, processedBribeIds, voteForGaugeEvents } =
-    await createMerkleTree_LoadData();
-  const { gaugesToVoteProportion } = await createMerkleTree_parseVoteForGaugeEvents(voteForGaugeEvents);
-  const { newProcessedBribeIds, bribeIdMerkleTrees, merkleLeafPutRequests } = await createMerkleTree_generateTrees(
+  const [awsData, wrappedGaugesToVoteProportion] = await Promise.all([
+    createMerkleTree_loadFromAWS(),
+    createMerkleTree_parseVoteForGaugeEvents(),
+  ]);
+
+  const { parseBribeDepositResult, proposalToGauge, processedBribeIds } = awsData;
+  const { gaugesToVoteProportion } = wrappedGaugesToVoteProportion;
+
+  const { bribeIds, bribeIdToGaugeMap, bribeIdToInfoMap } = await createMerkleTree_parseBribeIds(
+    parseBribeDepositResult,
+    proposalToGauge
+  );
+
+  const { newProcessedBribeIds, bribeIdMerkleTrees, merkleLeafPutRequests } = createMerkleTree_generateTrees(
     bribeIds,
     bribeIdToGaugeMap,
     bribeIdToInfoMap,
     processedBribeIds,
     gaugesToVoteProportion
   );
+
   await createMerkleTree_saveToAWS(newProcessedBribeIds, bribeIdMerkleTrees, merkleLeafPutRequests);
 };

@@ -1,3 +1,7 @@
+// Required for Mocha unit tests, not for Serverless
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 if (typeof process.env.MAINNET_URL === 'undefined') {
   throw new Error('Invalid MAINNET_URL in .env');
 }
