@@ -31,6 +31,12 @@ export type ParseBribeDepositsData = {
   bribeIdToAmounts: { [address: string]: BigNumber };
 };
 
+export type ParseBribeIdsData = {
+  bribeIds: string[];
+  bribeIdToGaugeMap: Map<string, string>;
+  bribeIdToInfoMap: Map<string, { token: string; amount: BigNumber }>;
+};
+
 export type MerkleTreeCollection = {
   [bribeId: string]: { bribeId: string; token: string; merkleRoot: string; merkleTree: MerkleTree };
 };

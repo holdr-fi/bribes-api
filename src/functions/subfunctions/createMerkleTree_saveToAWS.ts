@@ -10,7 +10,7 @@ export const createMerkleTree_saveToAWS = async function createMerkleTree_saveTo
   bribeIdMerkleTrees: MerkleTreeCollection,
   merkleLeafPutRequests: MerkleLeafPutRequest[]
 ): Promise<void> {
-  // Save to S3
+  // Save merkle trees to S3
   const saveMerkleTreeToS3Promises = Object.keys(bribeIdMerkleTrees).map((bribeId) => {
     return s3
       .putObject({

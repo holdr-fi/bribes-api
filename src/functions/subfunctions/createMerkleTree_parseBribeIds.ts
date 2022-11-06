@@ -1,17 +1,13 @@
 import { Contract, BigNumber } from 'ethers';
 import { contracts } from '../../network';
-import { ParseBribeDepositsData } from '../../types';
+import { ParseBribeDepositsData, ParseBribeIdsData } from '../../types';
 
 // CONSIDER - Should this be part of createMerkleTree function, or separate with output saved to AWS like getGaugeToProposalMap?
 // ALSO CONSIDER - Could we be saving this data in a database, rather than to S3 or not saving the data (i.e. recomputing everytime)?
 export const createMerkleTree_parseBribeIds = async function createMerkleTree_parseBribeIds(
   parseBribeDepositResult: ParseBribeDepositsData,
   proposalToGauge: { [proposal: string]: string }
-): Promise<{
-  bribeIds: string[];
-  bribeIdToGaugeMap: Map<string, string>;
-  bribeIdToInfoMap: Map<string, { token: string; amount: BigNumber }>;
-}> {
+): Promise<ParseBribeIdsData> {
   const bribeVault: Contract = contracts['BribeVault'];
   // getBribe(bytes32 bribeIdentifier) => (address token, uint256 amount)
   const bribeInfo: { token: string; amount: BigNumber }[] = await Promise.all(

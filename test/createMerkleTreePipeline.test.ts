@@ -6,11 +6,25 @@ import {
   createMerkleTree_generateTrees,
 } from '../src/functions/subfunctions';
 
+import processedBribeIds from './mocks/mockProcessedBribeIds.json';
+import { ParseBribeIdsData, ParseBribeDepositsData, MerkleTreeCollection, MerkleLeafPutRequest } from '../src/types';
+import { BigNumber } from 'ethers';
+
 describe('createMerkleTree pipeline', async () => {
-  let getGaugeToProposalMapData;
-  let parseBribeDepositsData;
-  let parseBribeIdsData;
-  let parseVoteForGaugeData;
+  let getGaugeToProposalMapData: {
+    gaugeToProposal: { [gaugeAddress: string]: string };
+    proposalToGauge: { [proposal: string]: string };
+  };
+  let parseBribeDepositsData: ParseBribeDepositsData;
+  let parseBribeIdsData: ParseBribeIdsData;
+  let parseVoteForGaugeData: {
+    gaugesToVoteProportion: Map<string, Map<string, BigNumber>>;
+  };
+  let createMerkleTreeData: {
+    newProcessedBribeIds: string[];
+    bribeIdMerkleTrees: MerkleTreeCollection;
+    merkleLeafPutRequests: MerkleLeafPutRequest[];
+  };
 
   describe('#_getGaugeToProposalMap()', async () => {
     it('', async () => {
@@ -45,6 +59,19 @@ describe('createMerkleTree pipeline', async () => {
     it('', async () => {
       parseVoteForGaugeData = await createMerkleTree_parseVoteForGaugeEvents();
       console.log(parseVoteForGaugeData.gaugesToVoteProportion.get('0x24644bB717F708aE3735e64181DA71ef0829c565'));
+    }).timeout(60000);
+  });
+
+  describe('#createMerkleTree_generateTrees()', async () => {
+    it('', async () => {
+      createMerkleTreeData = createMerkleTree_generateTrees(
+        parseBribeIdsData.bribeIds,
+        parseBribeIdsData.bribeIdToGaugeMap,
+        parseBribeIdsData.bribeIdToInfoMap,
+        processedBribeIds,
+        parseVoteForGaugeData.gaugesToVoteProportion
+      );
+      console.log(createMerkleTreeData);
     }).timeout(60000);
   });
 });
