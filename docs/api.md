@@ -16,21 +16,34 @@ GET /claims?address={EVM_ADDRESS}
 ### Return values
 | Name | Type | Description |
 |---|---|---|
+|claims|Claim[]|Array of Claim information|
+
+### Claim types
+
+```js
+type Claim = {
+  token: string;
+  amount: BigNumber | string;
+  claimParams: ClaimParams;
+};
+
+type ClaimParams = {
+  identifier: string;
+  account: string;
+  amount: string;
+  merkleProof: string[];
+};
+```
+
+#### Claim properties
+| Property | Type | Description |
+|---|---|---|
 |token|string|Address of ERC20 reward token|
 |amount|string|Amount of bribe reward|
 |claimParams|Claim|Required parameter for RewardDistributor.claim() function|
 
-### Claim struct
-
-```js
-struct Claim {
-    identifier: string
-    account: string 
-    amount: string
-    merkleProof: string
-}
-```
-
+#### ClaimParams properties
+Actual parameter required for RewardDistributor.claim()
 | Property | Type | Description |
 |---|---|---|
 |identifier|string|Unique identifier for bribe (each bribe has a unique identifier depending on gauge, bribe token and deadline)|
