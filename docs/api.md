@@ -74,3 +74,7 @@ type ProposalAndGauge = {
 GET /epochend
 ```
 
+### Return values
+| Name | Type | Description |
+|---|---|---|
+|deadline|number|Unix timestamp of next epoch end (if there is no active bribe, this will get the end timestamp of the most recent epoch)|
