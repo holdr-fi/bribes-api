@@ -6,3 +6,5 @@ export * from './getTransferBribesParameters';
 export * from './getUpdateRewardsMetadataParameters';
 export * from './getClaims';
 export * from './updater';
+export * from './getEpochEndTime';
+export * from './getDepositBribeParameters';

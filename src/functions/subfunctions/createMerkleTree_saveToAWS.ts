@@ -56,7 +56,7 @@ export const createMerkleTree_saveToAWS = async function createMerkleTree_saveTo
       },
     };
 
-    // Sleep
+    // Sleep (sleeptime decided by exponential backoff algorithm, begin at 50ms and double for every failed request)
 
     if (sleeptime > 0) {
       await sleep(sleeptime);
@@ -78,11 +78,7 @@ export const createMerkleTree_saveToAWS = async function createMerkleTree_saveTo
       sleeptime /= 2;
       // Else if error or returned unprocessed items
     } else {
-      if (sleeptime === 0) {
-        sleeptime = 50;
-      } else {
-        sleeptime *= 2;
-      }
+      sleeptime === 0 ? (sleeptime = 50) : (sleeptime *= 2);
     }
   }
 

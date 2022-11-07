@@ -71,18 +71,8 @@ functions:
     handler: src/handlers.getGaugeToProposalMapHandler
   createEmptyS3Objects:
     handler: src/handlers.createEmptyS3ObjectsHandler
-  # updaterScheduler:
-  #   handler: src/handlers.updaterSchedulerHandler
-  #   events:
-  #     - schedule: rate(24 hours)
   updater:
     handler: src/handlers.updaterHandler
-    # events:
-    #   - eventBridge:
-    #       eventBus: updaterScheduler
-    #       pattern:
-    #         source:
-    #           - updaterScheduler
   getTransferBribesParameters:
     handler: src/handlers.getTransferBribesParametersHandler
     events:
@@ -102,6 +92,20 @@ functions:
     events:
       - http:
           path: claims
+          method: get
+          cors: true
+  getEpochEndTime:
+    handler: src/handlers.getEpochEndTimeHandler
+    events:
+      - http:
+          path: epochend
+          method: get
+          cors: true
+  getDepositBribeParameters:
+    handler: src/handlers.getDepositBribeParametersHandler
+    events:
+      - http:
+          path: depositbribe
           method: get
           cors: true
 

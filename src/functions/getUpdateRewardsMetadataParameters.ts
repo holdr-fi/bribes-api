@@ -5,30 +5,36 @@ import AWS from 'aws-sdk';
 import { BUCKET_NAME } from '../constants';
 const s3 = new AWS.S3({ region: 'us-west-2' });
 
+/* Get parameters for RewardDistributor.updateRewardsMetadata(Distribution[] calldata _distributions)
+ *
+ * type Distribution = {
+ *   identifier: string;
+ *   token: string;
+ *   merkleRoot: string;
+ *   proof: string;
+ *  };
+ *
+ * Admin needs to call this after BribeVault.transferBribes(), to enable claims.
+ * Note that in our scheme, we are using the bribeId as the unique identifier for each reward.
+ */
 export const getUpdateRewardsMetadataParameters = async function getUpdateRewardsMetadataParameters(): Promise<
   Distribution[]
 > {
-  const rewardDistributor: Contract = contracts['RewardDistributor'];
-  const eventFilter = rewardDistributor.filters.RewardMetadataUpdated();
+  // Debundling two data queries we could have placed in a Promise.all block to enable unit testing, ok compromise because AWS SDK request isn't really a bottleneck for this app.
 
-  const [rewardMetadataUpdatedEvents, wrappedProcessedBribeIds] = await Promise.all([
-    rewardDistributor.queryFilter(eventFilter),
-    s3
-      .getObject({
-        Bucket: BUCKET_NAME,
-        Key: 'ProcessedBribeIds',
-      })
-      .promise(),
-  ]);
+  const wrappedProcessedBribeIds = await s3
+    .getObject({
+      Bucket: BUCKET_NAME,
+      Key: 'ProcessedBribeIds',
+    })
+    .promise();
 
-  // Get stale bribeIDs from RewardMetadataUpdated events from RewardDistributor.sol
-
-  // Compare with processedBribeIds to get freshBribeIds
+  // Array of bribeIds we have processed (created Merkle tree of bribing rewards for).
   const processedBribeIds: string[] = Array.from(JSON.parse(String(wrappedProcessedBribeIds?.Body)));
-  const staleBribeIds = rewardMetadataUpdatedEvents.map((event) => event?.args?.identifier);
-  const freshBribeIds = processedBribeIds.filter((bribeId) => !staleBribeIds.includes(bribeId));
 
-  // Get merkle trees
+  const freshBribeIds = await _getFreshBribeIds(processedBribeIds);
+
+  // Get merkle trees for all freshBribeIds
   const wrappedMerkleTrees = await Promise.all(
     freshBribeIds.map((bribeId) => {
       return s3
@@ -41,7 +47,28 @@ export const getUpdateRewardsMetadataParameters = async function getUpdateReward
   );
 
   const merkleTrees = wrappedMerkleTrees.map((wrappedMerkleTree) => JSON.parse(String(wrappedMerkleTree?.Body)));
+  return _merkleTreesToParameters(merkleTrees);
+};
 
+export const _getFreshBribeIds = async function _getFreshBribeIds(processedBribeIds: string[]): Promise<string[]> {
+  const rewardDistributor: Contract = contracts['RewardDistributor'];
+
+  // Lol, AWS and blockchain data query in one Promise.all block, efficient but difficult to decouple for unit testing.
+  const rewardMetadataUpdatedEvents = await rewardDistributor.queryFilter(
+    rewardDistributor.filters.RewardMetadataUpdated()
+  );
+
+  // Array of bribeIds which have already had updateRewardsMetadata invoked for.
+  const staleBribeIds = rewardMetadataUpdatedEvents.map((event) => event?.args?.identifier);
+  // Array of bribeIds which have not had updateRewardsMetadata invoked for.
+  const freshBribeIds = processedBribeIds.filter((bribeId) => !staleBribeIds.includes(bribeId));
+
+  return freshBribeIds;
+};
+
+export const _merkleTreesToParameters = function _merkleTreesToParameters(
+  merkleTrees: { bribeId: string; token: string; merkleRoot: string }[]
+): Distribution[] {
   const updateRewardsMetadataParameters = merkleTrees.map((merkleTree) => {
     return {
       identifier: merkleTree.bribeId,

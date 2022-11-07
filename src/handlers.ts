@@ -6,11 +6,12 @@ import {
   createMerkleTree,
   getGaugeToProposalMap,
   createEmptyS3Objects,
-  // updaterScheduler,
   updater,
   getTransferBribesParameters,
   getUpdateRewardsMetadataParameters,
   getClaims,
+  getEpochEndTime,
+  getDepositBribeParameters,
 } from './functions';
 
 export const parseBribeDepositsHandler = async function parseBribeDepositsHandler(event) {
@@ -155,5 +156,35 @@ export const getClaimsHandler = async function getClaimsHandler(event) {
   } catch (e) {
     console.error(e);
     return { statusCode: 400, body: 'getClaimsHandler error' };
+  }
+};
+
+export const getEpochEndTimeHandler = async function getEpochEndTimeHandler(event) {
+  try {
+    console.time('getEpochEndTime');
+    const epochEndTime = await getEpochEndTime();
+    console.timeEnd('getEpochEndTime');
+    return {
+      statusCode: 200,
+      body: JSON.stringify(epochEndTime),
+    };
+  } catch (e) {
+    console.error(e);
+    return { statusCode: 400, body: 'getEpochEndTimeHandler error' };
+  }
+};
+
+export const getDepositBribeParametersHandler = async function getDepositBribeParametersHandler(event) {
+  try {
+    console.time('getDepositBribeParameters');
+    const depositBribeParameters = await getDepositBribeParameters();
+    console.timeEnd('getDepositBribeParameters');
+    return {
+      statusCode: 200,
+      body: JSON.stringify(depositBribeParameters),
+    };
+  } catch (e) {
+    console.error(e);
+    return { statusCode: 400, body: 'getDepositBribeParametersHandler error' };
   }
 };
