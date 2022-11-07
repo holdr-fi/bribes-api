@@ -40,7 +40,7 @@ type ClaimParams = {
 |---|---|---|
 |token|string|Address of ERC20 reward token|
 |amount|string|Amount of bribe reward|
-|claimParams|Claim|Required parameter for RewardDistributor.claim() function|
+|claimParams|ClaimParams|Required parameter for RewardDistributor.claim() function|
 
 #### ClaimParams properties
 Actual parameter required for RewardDistributor.claim()
@@ -48,8 +48,8 @@ Actual parameter required for RewardDistributor.claim()
 |---|---|---|
 |identifier|string|Unique identifier for bribe (each bribe has a unique identifier depending on gauge, bribe token and deadline)|
 |account|string|EVM address of claimer|
-|amount|Claim|Amount of bribe reward|
-|merkleProof|Claim|Merkle proof|
+|amount|string|Amount of bribe reward|
+|merkleProof|string|Merkle proof|
 
 <br/>
 
