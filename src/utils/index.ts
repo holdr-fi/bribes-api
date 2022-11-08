@@ -9,3 +9,5 @@ export * from './getNestedMapSize';
 export * from './generateMerkleLeaf';
 export * from './sleep';
 export * from './types';
+export * from './arraySlicer';
+export * from './getCoingeckoPrice';

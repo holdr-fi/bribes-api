@@ -58,3 +58,27 @@ export type MerkleDBQuery = {
   token: { [attributeType: string]: string };
   bribeId: { [attributeType: string]: string };
 };
+
+export type ProposalInfo = {
+  proposal: string;
+  gauge: string;
+  pool: string;
+  gaugeName: string;
+  votes: string;
+  currentBribes: BribeInfo[];
+  totalUSDValue: number;
+  USDValuePerVote: number;
+};
+
+export type BribeInfo = {
+  token: string;
+  amount: BigNumber;
+  usdValue: number;
+};
+
+export type TokenInfo = {
+  [tokenAddr: string]: {
+    decimals: number;
+    price: number;
+  };
+};

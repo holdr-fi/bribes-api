@@ -68,11 +68,21 @@ GET /depositbribe
 ### ProposalAndGauge type
 
 ```js
-type ProposalAndGauge = {
+type ProposalInfo = {
   proposal: string;
   gauge: string;
   pool: string;
   gaugeName: string;
+  votes: string;
+  currentBribes: BribeInfo[];
+  totalUSDValue: number;
+  USDValuePerVote: number;
+};
+
+type BribeInfo = {
+  token: string;
+  amount: BigNumber;
+  usdValue: number;
 };
 ```
 
@@ -80,6 +90,12 @@ type ProposalAndGauge = {
 |---|---|---|
 |proposal|string|proposal ID|
 |gauge|string|Corresponding gauge, each proposal ID maps one-to-one to a gauge|
+|pool|string|Pool associated with gauge|
+|gaugeName|string|Gauge name|
+|votes|string|Current total votes for gauge|
+|currentBribes|BribeInfo[]|Array of current bribes for this gauge|
+|totalUSDValue|number|Total USD value of all current bribes for gauge|
+|USDValuePerVote|number|USD value per vote for current bribes for gauge|
 
 <br/>
 

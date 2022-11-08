@@ -82,7 +82,7 @@ describe('createMerkleTree pipeline', async () => {
 describe('APIs dependent on pipeline', async () => {
   describe('#getDepositBribeParameters()', async () => {
     it('', async () => {
-      const data = await _getDepositBribeParameters(getGaugeToProposalMapData.proposalToGauge);
+      const data = await _getDepositBribeParameters(getGaugeToProposalMapData.proposalToGauge, processedBribeIds);
       console.log(data);
       return;
     }).timeout(10000);
