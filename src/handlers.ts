@@ -149,13 +149,22 @@ export const getClaimsHandler = async function getClaimsHandler(event) {
     return {
       statusCode: 200,
       headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(claims),
     };
   } catch (e) {
     console.error(e);
-    return { statusCode: 400, body: 'getClaimsHandler error' };
+    return {
+      statusCode: 400,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+      body: 'getClaimsHandler error',
+    };
   }
 };
 
@@ -166,11 +175,22 @@ export const getEpochEndTimeHandler = async function getEpochEndTimeHandler(even
     console.timeEnd('getEpochEndTime');
     return {
       statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
       body: JSON.stringify(epochEndTime),
     };
   } catch (e) {
     console.error(e);
-    return { statusCode: 400, body: 'getEpochEndTimeHandler error' };
+    return {
+      statusCode: 400,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+      body: 'getEpochEndTimeHandler error',
+    };
   }
 };
 
@@ -181,10 +201,21 @@ export const getDepositBribeParametersHandler = async function getDepositBribePa
     console.timeEnd('getDepositBribeParameters');
     return {
       statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
       body: JSON.stringify(depositBribeParameters),
     };
   } catch (e) {
     console.error(e);
-    return { statusCode: 400, body: 'getDepositBribeParametersHandler error' };
+    return {
+      statusCode: 400,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+      body: 'getDepositBribeParametersHandler error',
+    };
   }
 };

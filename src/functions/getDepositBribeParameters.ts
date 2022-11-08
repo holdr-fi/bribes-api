@@ -1,7 +1,8 @@
 import { Contract } from 'ethers';
-import { contracts } from '../network';
+import { contracts, provider } from '../network';
 import AWS from 'aws-sdk';
 import { BUCKET_NAME } from '../constants';
+import GAUGE_ABI from '../network/abis/Gauge.json';
 const s3 = new AWS.S3({ region: 'us-west-2' });
 
 // Get collection of active proposals (and corresponding gauges), and whitelisted tokens.
@@ -43,10 +44,27 @@ export const _getDepositBribeParameters = async function _getDepositBribeParamet
     .filter((proposalEvent) => proposalEvent.deadline > Math.floor(Date.now() / 1000))
     .map((proposalEvent) => proposalEvent.proposal);
 
-  const proposalsAndGauges = proposals.map((proposal) => {
+  // From gauge address, query gauge name and associated pool
+  const poolPromises = proposals.map((proposal) => {
+    const gauge: Contract = new Contract(proposalToGauge[proposal], GAUGE_ABI, provider);
+    return gauge.lp_token();
+  });
+
+  const gaugeNamePromises = proposals.map((proposal) => {
+    const gauge: Contract = new Contract(proposalToGauge[proposal], GAUGE_ABI, provider);
+    return gauge.name();
+  });
+
+  const poolAndGaugeName = await Promise.all([...poolPromises, ...gaugeNamePromises]);
+  const pools = poolAndGaugeName.slice(0, poolAndGaugeName.length / 2);
+  const gaugeNames = poolAndGaugeName.slice(poolAndGaugeName.length / 2);
+
+  const proposalsAndGauges = proposals.map((proposal, index) => {
     return {
       proposal: proposal,
       gauge: proposalToGauge[proposal],
+      pool: pools[index],
+      gaugeName: gaugeNames[index],
     };
   });
 
@@ -59,4 +77,6 @@ export const _getDepositBribeParameters = async function _getDepositBribeParamet
 type ProposalAndGauge = {
   proposal: string;
   gauge: string;
+  pool: string;
+  gaugeName: string;
 };

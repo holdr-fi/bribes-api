@@ -62,7 +62,7 @@ GET /depositbribe
 ### Return values
 | Name | Type | Description |
 |---|---|---|
-|proposalsAndGauges|ProposalAndGauge[]|Array of active proposals (and corresponding gauges)|
+|proposalsAndGauges|ProposalAndGauge[]|Array of active proposals (and associated gauge and pool)|
 |tokens|string[]|Array of tokens whitelisted for bribes|
 
 ### ProposalAndGauge type
@@ -71,6 +71,8 @@ GET /depositbribe
 type ProposalAndGauge = {
   proposal: string;
   gauge: string;
+  pool: string;
+  gaugeName: string;
 };
 ```
 
