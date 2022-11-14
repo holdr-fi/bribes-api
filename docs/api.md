@@ -5,7 +5,7 @@
 Required for voters to claim bribing rewards
 
 ```
-GET /claims?address={EVM_ADDRESS}
+GET https://api.holdr.fi/bribe/claims?address={EVM_ADDRESS}
 ```
 
 ### Parameters
@@ -56,7 +56,7 @@ Actual parameter required for RewardDistributor.claim()
 ## Get BribeVault.depositBribeERC20() parameters
 
 ```
-GET /depositbribe
+GET https://api.holdr.fi/bribe/depositbribe
 ```
 
 ### Return values
@@ -102,7 +102,7 @@ type BribeInfo = {
 ## Get bribing epoch end timestamp
 
 ```
-GET /epochend
+GET https://api.holdr.fi/bribe/epochend
 ```
 
 ### Return values
