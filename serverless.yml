@@ -6,6 +6,7 @@ plugins:
   - serverless-esbuild
   - serverless-dotenv-plugin
   - serverless-dynamodb-autoscaling
+  - serverless-domain-manager
 
 custom:
   capacities:
@@ -18,10 +19,17 @@ custom:
         minimum: 5
         maximum: 200
         usage: 0.75
+  customDomain:
+    certificateName: holdr.fi
+    domainName: api.holdr.fi
+    basePath: 'bribe'
+    stage: ${self:provider.stage}
+    createRoute53Record: true
 
 provider:
   name: aws
   region: us-west-2
+  stage: dev
   stackName: solace-swap-bribes
   runtime: nodejs14.x
   iamRoleStatements:
