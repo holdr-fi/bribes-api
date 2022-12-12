@@ -42,7 +42,7 @@ describe('createMerkleTree pipeline', async () => {
 
   describe('#_parseBribeDeposits()', async () => {
     it('', async () => {
-      // parseBribeDepositsData = await _parseBribeDeposits();
+      parseBribeDepositsData = await _parseBribeDeposits();
       // console.log(parseBribeDepositsData);
       return;
     }).timeout(60000);
@@ -50,17 +50,18 @@ describe('createMerkleTree pipeline', async () => {
 
   describe('#createMerkleTree_parseBribeIds()', async () => {
     it('', async () => {
-      // parseBribeIdsData = await createMerkleTree_parseBribeIds(
-      //   parseBribeDepositsData,
-      //   getGaugeToProposalMapData.proposalToGauge
-      // );
+      parseBribeIdsData = await createMerkleTree_parseBribeIds(
+        parseBribeDepositsData,
+        getGaugeToProposalMapData.proposalToGauge
+      );
       // console.log(parseBribeIdsData);
     }).timeout(60000);
   });
 
   describe('#createMerkleTree_parseVoteForGaugeEvents()', async () => {
     it('', async () => {
-      // parseVoteForGaugeData = await createMerkleTree_parseVoteForGaugeEvents();
+      parseVoteForGaugeData = await createMerkleTree_parseVoteForGaugeEvents();
+      // console.log(parseVoteForGaugeData);
       // console.log(parseVoteForGaugeData.gaugesToVoteProportion.get('0x24644bB717F708aE3735e64181DA71ef0829c565'));
     }).timeout(60000);
   });
@@ -82,8 +83,8 @@ describe('createMerkleTree pipeline', async () => {
 describe('APIs dependent on pipeline', async () => {
   describe('#getDepositBribeParameters()', async () => {
     it('', async () => {
-      const data = await _getDepositBribeParameters(getGaugeToProposalMapData.proposalToGauge, processedBribeIds);
-      console.log(data);
+      // const data = await _getDepositBribeParameters(getGaugeToProposalMapData.proposalToGauge, processedBribeIds);
+      // console.log(data);
       return;
     }).timeout(10000);
   });

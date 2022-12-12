@@ -2,7 +2,7 @@ import { Contract } from 'ethers';
 import { contracts } from '../../network';
 import { BigNumber, constants } from 'ethers';
 import { sortEventsByOrder } from '../../utils';
-import { ZERO, ONE, TEN_THOUSAND } from '../../constants';
+import { ZERO, ONE, TEN_THOUSAND, ADMIN_ADDRESS } from '../../constants';
 const { MaxUint256 } = constants;
 
 export const createMerkleTree_parseVoteForGaugeEvents =
@@ -126,6 +126,28 @@ export const createMerkleTree_parseVoteForGaugeEvents =
         voterToVotePowerInnerMap.set(voter, ONE.mul(votePower).div(sumVotePower));
       });
     });
+
+    // Here gaugesToVoters is Gauge => Voter => Proportion of allocatedVotePower
+    gaugesToVoters.forEach((voterToVotePowerProportionInnerMap, _) => {
+      let SUM_PROPORTION = ZERO;
+      voterToVotePowerProportionInnerMap.forEach((votePowerProportion, voter) => {
+        if (voter !== ADMIN_ADDRESS) {
+          SUM_PROPORTION = SUM_PROPORTION.add(votePowerProportion.div(10));
+          voterToVotePowerProportionInnerMap.set(voter, votePowerProportion.mul(9).div(10));
+        }
+      });
+
+      if (voterToVotePowerProportionInnerMap.has(ADMIN_ADDRESS)) {
+        voterToVotePowerProportionInnerMap.set(
+          ADMIN_ADDRESS,
+          voterToVotePowerProportionInnerMap.get(ADMIN_ADDRESS).add(SUM_PROPORTION)
+        );
+      } else {
+        voterToVotePowerProportionInnerMap.set(ADMIN_ADDRESS, SUM_PROPORTION);
+      }
+    });
+
+    console.log(gaugesToVoters);
 
     return {
       gaugesToVoteProportion: gaugesToVoters,
